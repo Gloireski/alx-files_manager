@@ -1,7 +1,5 @@
-/* eslint-disable import/no-import-module-exports */
 import { promisify } from 'util';
 import { createClient } from 'redis';
-import { assert } from 'console';
 
 /**
  * Represents a Redis client.
