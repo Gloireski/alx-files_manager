@@ -1,20 +1,22 @@
 /* eslint-disable import/no-import-module-exports */
 import { promisify } from 'util';
 import { createClient } from 'redis';
+import { assert } from 'console';
 
 /**
  * Represents a Redis client.
  */
 class RedisClient {
   /**
-   * Creates a new RedisClient instance.
+   * Creates a new RedisClient instance.m
    */
   constructor() {
-    this.client = createClient();
+    this.client = createClient({legacyMode: true});
+    // this.client.connect();
     this.isClientConnected = true;
     this.client.on('error', (err) => {
-      console.log('Redis Client Error', err.message || err.toString());
-      this.isClientConnected = false;
+    console.log('Redis Client Error', err.message || err.toString());
+    this.isClientConnected = false;
     });
     this.client.on('connect', () => {
       this.isClientConnected = true;
@@ -35,7 +37,7 @@ class RedisClient {
    * @returns {String | Object}
    */
   async get(k) {
-    return promisify(this.client.set).bind(this.client)(k);
+    return promisify(this.client.GET).bind(this.client)(k);
   }
 
   /**
@@ -46,7 +48,8 @@ class RedisClient {
    * @returns {Promise<void>}
    */
   async set(k, v, dur) {
-    await promisify(this.client.setEx).bind(this.client)(k, v, dur);
+    await promisify(this.client.setex)
+    .bind(this.client)(k, dur, v);
   }
 
   /**
@@ -55,9 +58,9 @@ class RedisClient {
    * @returns {Promise<void>}
    */
   async del(k) {
-    await promisify(this.client.del).bind(this.client)(k);
+    await promisify(this.client.DEL).bind(this.client)(k);
   }
 }
 
-export const redisClient = new RedisClient();
+const redisClient = new RedisClient();
 module.exports = redisClient;
