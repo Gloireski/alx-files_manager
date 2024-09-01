@@ -33,8 +33,8 @@ class RedisClient {
    * @param {String} key The key of the item to retrieve.
    * @returns {String | Object}
    */
-  async get(k) {
-    return promisify(this.client.GET).bind(this.client)(k);
+  async get(key) {
+    return promisify(this.client.GET).bind(this.client)(key);
   }
 
   /**
@@ -44,9 +44,9 @@ class RedisClient {
    * @param {Number} duration The expiration time of the item in seconds.
    * @returns {Promise<void>}
    */
-  async set(k, v, dur) {
+  async set(key, value, duration) {
     await promisify(this.client.SETEX)
-      .bind(this.client)(k, dur, v);
+      .bind(this.client)(key, duration, value);
   }
 
   /**
@@ -54,8 +54,8 @@ class RedisClient {
    * @param {String} key The key of the item to remove.
    * @returns {Promise<void>}
    */
-  async del(k) {
-    await promisify(this.client.DEL).bind(this.client)(k);
+  async del(key) {
+    await promisify(this.client.DEL).bind(this.client)(key);
   }
 }
 
