@@ -12,7 +12,7 @@ class RedisClient {
     this.client = createClient();
     this.isClientConnected = true;
     this.client.on('error', (err) => {
-      console.error('Redis Client Error', err.message || err.toString());
+      console.log('Redis Client Error', err.message || err.toString());
       this.isClientConnected = false;
     });
     this.client.on('connect', () => {
@@ -46,7 +46,7 @@ class RedisClient {
    */
   async set(k, v, dur) {
     await promisify(this.client.SETEX)
-    .bind(this.client)(k, dur, v);
+      .bind(this.client)(k, dur, v);
   }
 
   /**
