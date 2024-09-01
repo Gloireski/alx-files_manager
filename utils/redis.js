@@ -9,11 +9,10 @@ class RedisClient {
    * Creates a new RedisClient instance.m
    */
   constructor() {
-    this.client = createClient({legacyMode: true});
-
+    this.client = createClient();
     this.isClientConnected = true;
     this.client.on('error', (err) => {
-      console.log('Redis Client Error', err.message || err.toString());
+      console.error('Redis Client Error', err.message || err.toString());
       this.isClientConnected = false;
     });
     this.client.on('connect', () => {
