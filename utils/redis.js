@@ -10,6 +10,7 @@ class RedisClient {
    */
   constructor() {
     this.client = createClient({legacyMode: true});
+
     this.isClientConnected = true;
     this.client.on('error', (err) => {
     console.log('Redis Client Error', err.message || err.toString());
@@ -45,7 +46,7 @@ class RedisClient {
    * @returns {Promise<void>}
    */
   async set(k, v, dur) {
-    await promisify(this.client.setex)
+    await promisify(this.client.SETEX)
     .bind(this.client)(k, dur, v);
   }
 
@@ -59,5 +60,5 @@ class RedisClient {
   }
 }
 
-export const redisClient = new RedisClient();
-export default redisClient;
+const redisClient = new RedisClient();
+module.exports = redisClient;
