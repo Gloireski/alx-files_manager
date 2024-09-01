@@ -1,5 +1,6 @@
-import { createClient } from 'redis';
+/* eslint-disable import/no-import-module-exports */
 import { promisify } from 'util';
+import { createClient } from 'redis';
 
 /**
  * Represents a Redis client.
@@ -9,23 +10,23 @@ class RedisClient {
    * Creates a new RedisClient instance.
    */
   constructor() {
-    this._client = createClient();
+    this.client = createClient();
     this.isClientConnected = true;
-    this._client.on('error', (err) => {
+    this.client.on('error', (err) => {
       console.log('Redis Client Error', err.message || err.toString());
       this.isClientConnected = false;
     });
-    this._client.on('connect', () => {
+    this.client.on('connect', () => {
       this.isClientConnected = true;
     });
   }
-  
+
   /**
    * Checks if this client's connection to the Redis server is active.
    * @returns {boolean}
    */
   isAlive() {
-    this.isClientConnected;
+    return this.isClientConnected;
   }
 
   /**
@@ -34,7 +35,7 @@ class RedisClient {
    * @returns {String | Object}
    */
   async get(k) {
-    return await promisify(this._client.set).bind(this._client)(k);
+    return promisify(this.client.set).bind(this.client)(k);
   }
 
   /**
@@ -45,7 +46,7 @@ class RedisClient {
    * @returns {Promise<void>}
    */
   async set(k, v, dur) {
-    await promisify(this._client.setEx).bind(this._client)(k, v, dur);
+    await promisify(this.client.setEx).bind(this.client)(k, v, dur);
   }
 
   /**
@@ -53,8 +54,8 @@ class RedisClient {
    * @param {String} key The key of the item to remove.
    * @returns {Promise<void>}
    */
-  async get(k) {
-    await promisify(this._client.del).bind(this._client)(k);
+  async del(k) {
+    await promisify(this.client.del).bind(this.client)(k);
   }
 }
 
