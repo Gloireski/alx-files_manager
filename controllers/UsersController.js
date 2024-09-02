@@ -6,11 +6,6 @@ import dbClient from '../utils/db';
  * Contains the users route handlers.
  */
 class UsersController {
-  /**
-     * should create a new user in DB
-     * @param {*} request
-     * @param {*} response
-     */
   static async postNew(request, response) {
     const email = request.body ? request.body.email : null;
     const password = request.body ? request.body.password : null;
