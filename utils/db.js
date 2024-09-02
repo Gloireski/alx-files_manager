@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-import-module-exports
 import { MongoClient } from 'mongodb';
 // const { MongoClient } = require('mongodb');
 
