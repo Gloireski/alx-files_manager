@@ -17,20 +17,19 @@ class UsersController {
 
     if (!email) {
       response.status(400).json({ error: 'Missing email' });
-      console.log(request.body);
       return;
     }
     if (!password) {
       response.status(400).json({ error: 'Missing password' });
       return;
     }
-    const user = await (await dbClient.client.db().collection('users'))
+    const user = await dbClient.client.db().collection('users')
       .findOne({ email });
     if (user) {
       response.status(400).json({ error: 'Already exist' });
       return;
     }
-    const insertInfo = await (await dbClient.client.db().collection('users'))
+    const insertInfo = await dbClient.client.db().collection('users')
       .insertOne({ email, password: sha1(password) });
     const userId = insertInfo.insertedId.toString();
     response.status(200).json({ email, id: userId });
