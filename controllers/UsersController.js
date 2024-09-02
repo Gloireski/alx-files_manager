@@ -23,8 +23,8 @@ class UsersController {
       response.status(400).json({ error: 'Missing password' });
       return;
     }
-    const user = await (await dbClient.usersCollection())
-      .findOne({ email });
+    const user = await (await dbClient.usersCollection()).findOne({ email });
+
     if (user) {
       response.status(400).json({ error: 'Already exist' });
       return;
@@ -32,9 +32,9 @@ class UsersController {
     const insertInfo = await (await dbClient.usersCollection())
       .insertOne({ email, password: sha1(password) });
     const userId = insertInfo.insertedId.toString();
+
     response.status(200).json({ email, id: userId });
   }
 }
 
 export default UsersController;
-module.exports = UsersController;
