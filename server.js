@@ -7,7 +7,7 @@ const express = require('express');
  * create an express server
  */
 const app = express();
-app.use(express.json());
+// app.use(express.json());
 const port = process.env.PORT || 5000;
 
 mapRoutes(app);
