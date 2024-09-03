@@ -1,6 +1,7 @@
 import UsersController from '../controllers/UsersController';
 import AppController from '../controllers/AppController';
 import AuthController from '../controllers/AuthController';
+import FilesController from '../controllers/FilesController';
 
 /**
  * Binds the routes to the appropriate handler in the
@@ -16,6 +17,8 @@ const injectRoutes = (server) => {
 
   server.get('/connect', AuthController.getConnect);
   server.get('/disconnect', AuthController.getDisconnect);
+
+  server.post('/files', FilesController.postUpload);
 };
 
 export default injectRoutes;
