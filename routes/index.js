@@ -1,3 +1,4 @@
+import UsersController from '../controllers/UsersController';
 import AppController from '../controllers/AppController';
 
 /**
@@ -8,6 +9,8 @@ import AppController from '../controllers/AppController';
 const mapRoutes = (app) => {
   app.get('/status', AppController.getStatus);
   app.get('/stats', AppController.getStats);
+
+  app.post('/users', UsersController.postNew);
 };
 
 export default mapRoutes;
