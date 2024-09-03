@@ -1,5 +1,7 @@
 import sha1 from 'sha1';
+import { ObjectId } from 'mongodb';
 import dbClient from '../utils/db';
+import redisClient from '../utils/redis';
 
 /**
  * Contains the users route handlers.
@@ -33,6 +35,30 @@ class UsersController {
     const userId = insertInfo.insertedId.toString();
 
     response.status(201).json({ email, id: userId });
+  }
+
+  static async getMe(request, response) {
+    const token = request.headers['x-token'];
+
+    if (!token) {
+      response.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const userId = await redisClient.get(`auth_${token}`);
+    if (!userId) {
+      response.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const user = await (await dbClient.usersCollection())
+      .findOne({ _id: new ObjectId(userId) });
+    if (!user) {
+      response.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    response.status(200).json({ email: user.email, id: user._id.toString() });
   }
 }
 

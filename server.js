@@ -1,17 +1,17 @@
-import mapRoutes from './routes';
+import injectRoutes from './routes';
 
 const express = require('express');
 
 /**
  * create an express server
  */
-const app = express();
+const server = express();
 const port = process.env.PORT || 5000;
-app.use(express.json());
+server.use(express.json());
 
-mapRoutes(app);
-app.listen(port, () => {
+injectRoutes(server);
+server.listen(port, () => {
   console.log(`Server listening on PORT ${port}`);
 });
 
-export default app;
+export default server;
