@@ -94,7 +94,7 @@ class FilesController {
         response.status(400).json({ error: 'Parent not found' });
         return;
       }
-      if (file.type !== VALID_FILE_TYPES) {
+      if (file.type !== VALID_FILE_TYPES.folder) {
         response.status(400).json({ error: 'Parent is not a folder' });
         return;
       }
