@@ -1,4 +1,3 @@
-/* eslint-disable import/no-import-module-exports */
 import redisClient from '../utils/redis';
 import dbClient from '../utils/db';
 
@@ -31,4 +30,3 @@ class AppController {
 }
 
 export default AppController;
-module.exports = AppController;
