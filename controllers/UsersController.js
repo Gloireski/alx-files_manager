@@ -1,4 +1,3 @@
-/* eslint-disable import/no-import-module-exports */
 import sha1 from 'sha1';
 import dbClient from '../utils/db';
 
