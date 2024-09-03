@@ -18,11 +18,26 @@ const ROOT_FOLDER_ID = 0;
 const DEFAULT_ROOT_FOLDER = 'files_manager';
 const mkDirAsync = promisify(mkdir);
 const writeFileAsync = promisify(writeFile);
+const NULL_ID = Buffer.alloc(24, '0').toString('utf-8');
 const isValidId = (id) => {
-  try {
-    ObjectId(id);
-  } catch (err) {
+  const size = 24;
+  let i = 0;
+  const charRanges = [
+    [48, 57], // 0 - 9
+    [97, 102], // a - f
+    [65, 70], // A - F
+  ];
+  if (typeof id !== 'string' || id.length !== size) {
     return false;
+  }
+  while (i < size) {
+    const c = id[i];
+    const code = c.charCodeAt(0);
+
+    if (!charRanges.some((range) => code >= range[0] && code <= range[1])) {
+      return false;
+    }
+    i += 1;
   }
   return true;
 };
@@ -72,7 +87,7 @@ class FilesController {
     }
     if ((parentId !== ROOT_FOLDER_ID) && (parentId !== ROOT_FOLDER_ID.toString())) {
       const file = await (await dbClient.filesCollection())
-        .findOne({ _id: new ObjectId(isValidId(parentId) ? parentId : '0') });
+        .findOne({ _id: new ObjectId(isValidId(parentId) ? parentId : NULL_ID) });
       console.log(parentId);
 
       if (!file) {
