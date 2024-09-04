@@ -104,7 +104,7 @@ class FilesController {
       : joinPath(tmpdir(), DEFAULT_ROOT_FOLDER);
     // default baseDir == '/tmp/files_manager'
     // or (on Windows) '%USERPROFILE%/AppData/Local/Temp/files_manager';
-    console.log(isPublic);
+    // console.log(isPublic);
     const newFile = {
       userId: new ObjectId(user._id),
       name,
@@ -137,7 +137,7 @@ class FilesController {
 
   static async getShow(request, response) {
     const id = request.params ? request.params.id : NULL_ID;
-    console.log('getShow');
+    // console.log('getShow');
     const token = request.headers['x-token'];
 
     if (!token) {
@@ -159,8 +159,8 @@ class FilesController {
     }
     const file = await (await dbClient.filesCollection())
       .findOne({
-        _id: new ObjectId(isValidId(id) ? id : NULL_ID),
-        userId: new ObjectId(isValidId(user._id) ? user._id : NULL_ID),
+        _id: new ObjectId(id),
+        userId: new ObjectId(user._id),
       });
     if (!file) {
       response.status(400).json({ error: 'Not found' });
@@ -179,7 +179,7 @@ class FilesController {
   }
 
   static async getIndex(request, response) {
-    console.log('getIndex');
+    // console.log('getIndex');
     const parentId = request.query.parentId || ROOT_FOLDER_ID.toString();
     const page = /\d+/.test((request.query.page || '').toString())
       ? Number.parseInt(request.query.page, 10)
@@ -204,7 +204,7 @@ class FilesController {
       response.status(401).json({ error: 'Unauthorized' });
       return;
     }
-    console.log(parentId);
+    // console.log(parentId);
     const filesFilter = {
       userId: user._id,
       parentId: parentId === ROOT_FOLDER_ID.toString()
@@ -226,9 +226,7 @@ class FilesController {
             name: '$name',
             type: '$type',
             isPublic: '$isPublic',
-            parentId: {
-              $cond: { if: { $eq: ['$parentId', '0'] }, then: 0, else: '$parentId' },
-            },
+            parentId: '$parentId',
           },
         },
       ])).toArray();
