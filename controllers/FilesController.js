@@ -211,7 +211,7 @@ class FilesController {
         ? parentId
         : new ObjectId(isValidId(parentId) ? parentId : NULL_ID),
     };
-    // let files = [];
+
     const files = await (await (await dbClient.filesCollection())
       .aggregate([
         { $match: filesFilter },
@@ -226,7 +226,9 @@ class FilesController {
             name: '$name',
             type: '$type',
             isPublic: '$isPublic',
-            parentId: '$parentId',
+            parentId: {
+              $cond: { if: { $eq: ['$parentId', '0'] }, then: 0, else: '$parentId' },
+            },
           },
         },
       ])).toArray();
