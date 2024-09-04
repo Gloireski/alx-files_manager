@@ -137,7 +137,6 @@ class FilesController {
 
   static async getShow(request, response) {
     const id = request.params ? request.params.id : NULL_ID;
-    // console.log('getShow');
     const token = request.headers['x-token'];
 
     if (!token) {
@@ -163,7 +162,7 @@ class FilesController {
         userId: new ObjectId(user._id),
       });
     if (!file) {
-      response.status(400).json({ error: 'Not found' });
+      response.status(404).json({ error: 'Not found' });
       return;
     }
     response.status(200).json({
