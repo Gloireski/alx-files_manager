@@ -172,7 +172,7 @@ class FilesController {
       name: file.name,
       type: file.type,
       isPublic: file.isPublic,
-      parentId: file.parentId === ROOT_FOLDER_ID.toString()
+      parentId: file.parentId === '0'
         ? 0
         : file.parentId.toString(),
     });
