@@ -22,8 +22,8 @@ const injectRoutes = (server) => {
   server.get('/files/:id', FilesController.getShow);
   server.get('/files/', FilesController.getIndex);
 
-  server.get('/files/:id/publish', FilesController.putPublish);
-  server.get('/files/:id/unpublish', FilesController.putUnpublish);
+  server.put('/files/:id/publish', FilesController.putPublish);
+  server.put('/files/:id/unpublish', FilesController.putUnpublish);
 };
 
 export default injectRoutes;
