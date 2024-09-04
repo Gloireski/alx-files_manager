@@ -158,14 +158,17 @@ class FilesController {
       return;
     }
     const file = await (await dbClient.filesCollection())
-      .findOne({ _id: new ObjectId(id), userId: new ObjectId(user._id) });
+      .findOne({
+        _id: new ObjectId(isValidId(id) ? id : NULL_ID),
+        userId: new ObjectId(isValidId(user._id) ? user._id : NULL_ID),
+      });
     if (!file) {
       response.status(400).json({ error: 'Not found' });
       return;
     }
     response.status(200).json({
       id,
-      userId,
+      userId: user._id,
       name: file.name,
       type: file.type,
       isPublic: file.isPublic,
