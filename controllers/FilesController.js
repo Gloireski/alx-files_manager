@@ -212,7 +212,7 @@ class FilesController {
         : new ObjectId(isValidId(parentId) ? parentId : NULL_ID),
     };
     // let files = [];
-    const files = await (await dbClient.filesCollection())
+    const files = await (await (await dbClient.filesCollection())
       .aggregate([
         { $match: filesFilter },
         { $sort: { _id: -1 } },
@@ -231,7 +231,7 @@ class FilesController {
             },
           },
         },
-      ]).toArray();
+      ])).toArray();
 
     response.status(200).json(files);
   }
