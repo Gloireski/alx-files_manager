@@ -239,5 +239,105 @@ class FilesController {
 
     response.status(200).json(fileList);
   }
+
+  /**
+   * sets isPublic to true on the file document based on the ID:
+   * @param {*} request
+   * @param {*} response
+   */
+  static async putPublish(request, response) {
+    const id = request.params ? request.params.id : NULL_ID;
+    const token = request.headers['x-token'];
+
+    if (!token) {
+      response.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const userId = await redisClient.get(`auth_${token}`);
+    if (!userId) {
+      response.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const user = await (await dbClient.usersCollection())
+      .findOne({ _id: new ObjectId(userId) });
+    if (!user) {
+      response.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+    const fileFilter = {
+      _id: new ObjectId(id),
+      userId: new ObjectId(user._id),
+    };
+
+    const file = await (await dbClient.filesCollection())
+      .findOne(fileFilter);
+    if (!file) {
+      response.status(404).json({ error: 'Not found' });
+    }
+    await (await dbClient.filesCollection())
+      .updateOne(fileFilter, { $set: { isPublic: true } });
+    response.status(200).json({
+      id,
+      userId: user._id,
+      name: file.name,
+      type: file.type,
+      isPublic: true,
+      parentId: file.parentId === '0'
+        ? 0
+        : file.parentId.toString(),
+    });
+  }
+
+  /**
+   * sets isPublic to false on the file document based on the ID:
+   * @param {*} request
+   * @param {*} response
+   */
+  static async putUnpublish(request, response) {
+    const id = request.params ? request.params.id : NULL_ID;
+    const token = request.headers['x-token'];
+
+    if (!token) {
+      response.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const userId = await redisClient.get(`auth_${token}`);
+    if (!userId) {
+      response.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const user = await (await dbClient.usersCollection())
+      .findOne({ _id: new ObjectId(userId) });
+    if (!user) {
+      response.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+    const fileFilter = {
+      _id: new ObjectId(id),
+      userId: new ObjectId(user._id),
+    };
+
+    const file = await (await dbClient.filesCollection())
+      .findOne(fileFilter);
+    if (!file) {
+      response.status(404).json({ error: 'Not found' });
+    }
+    await (await dbClient.filesCollection())
+      .updateOne(fileFilter, { $set: { isPublic: false } });
+    response.status(200).json({
+      id,
+      userId: user._id,
+      name: file.name,
+      type: file.type,
+      isPublic: false,
+      parentId: file.parentId === '0'
+        ? 0
+        : file.parentId.toString(),
+    });
+  }
 }
 export default FilesController;
