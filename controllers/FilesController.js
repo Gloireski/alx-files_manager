@@ -215,6 +215,7 @@ class FilesController {
     const files = await (await dbClient.filesCollection())
       .aggregate([
         { $match: filesFilter },
+        { $sort: { _id: -1 } },
         { $skip: page * 20 },
         { $limit: 20 },
         {
