@@ -275,6 +275,7 @@ class FilesController {
       .findOne(fileFilter);
     if (!file) {
       response.status(404).json({ error: 'Not found' });
+      return;
     }
     await (await dbClient.filesCollection())
       .updateOne(fileFilter, { $set: { isPublic: true } });
@@ -325,6 +326,7 @@ class FilesController {
       .findOne(fileFilter);
     if (!file) {
       response.status(404).json({ error: 'Not found' });
+      return;
     }
     await (await dbClient.filesCollection())
       .updateOne(fileFilter, { $set: { isPublic: false } });
