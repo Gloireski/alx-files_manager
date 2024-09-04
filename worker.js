@@ -4,9 +4,11 @@ import Queue from 'bull/lib/queue';
 import imgThumbnail from 'image-thumbnail';
 import { ObjectId } from 'mongodb';
 import dbClient from './utils/db';
+import Mailer from './utils/mailer';
 
 const writeFileAsync = promisify(writeFile);
 const fileQueue = new Queue('thumbnail generation');
+const userQueue = new Queue('email sending');
 
 /**
  * Generates the thumbnail of an image with a given width size.
@@ -44,4 +46,35 @@ fileQueue.process(async (job, done) => {
     .then(() => {
       done();
     });
+});
+
+userQueue.process(async (job, done) => {
+  const userId = job.data.userId || null;
+
+  if (!userId) {
+    throw new Error('Missing userId');
+  }
+  const user = await (await dbClient.usersCollection())
+    .findOne({ _id: new ObjectId(userId) });
+  if (!user) {
+    throw new Error('User not found');
+  }
+  console.log(`Welcome ${user.email}!`);
+  try {
+    const mailSubject = 'Welcome to ALX-Files_Manager by B3zaleel';
+    const mailContent = [
+      '<div>',
+      '<h3>Hello {{user.name}},</h3>',
+      'Welcome to <a href="https://github.com/B3zaleel/alx-files_manager">',
+      'ALX-Files_Manager</a>, ',
+      'a simple file management API built with Node.js by ',
+      '<a href="https://github.com/B3zaleel">Bezaleel Olakunori</a>. ',
+      'We hope it meets your needs.',
+      '</div>',
+    ].join('');
+    Mailer.sendMail(Mailer.buildMessage(user.email, mailSubject, mailContent));
+    done();
+  } catch (err) {
+    done(err);
+  }
 });

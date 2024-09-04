@@ -363,7 +363,7 @@ class FilesController {
     }
 
     const userId = await redisClient.get(`auth_${token}`);
-    console.log(userId);
+    // console.log(userId);
     if (!userId) {
       response.status(404).json({ error: 'Not found' });
       return;
