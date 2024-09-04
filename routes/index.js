@@ -19,6 +19,11 @@ const injectRoutes = (server) => {
   server.get('/disconnect', AuthController.getDisconnect);
 
   server.post('/files', FilesController.postUpload);
+  // server.get('/files/:id', (req, res) => {
+  //   console.log(req.params.id);
+  // });
+  server.get('/files/:id', FilesController.getShow);
+  server.get('/files/', FilesController.getIndex);
 };
 
 export default injectRoutes;

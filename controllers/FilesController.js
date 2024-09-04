@@ -88,7 +88,6 @@ class FilesController {
     if ((parentId !== ROOT_FOLDER_ID) && (parentId !== ROOT_FOLDER_ID.toString())) {
       const file = await (await dbClient.filesCollection())
         .findOne({ _id: new ObjectId(isValidId(parentId) ? parentId : NULL_ID) });
-      console.log(parentId);
 
       if (!file) {
         response.status(400).json({ error: 'Parent not found' });
@@ -105,6 +104,7 @@ class FilesController {
       : joinPath(tmpdir(), DEFAULT_ROOT_FOLDER);
     // default baseDir == '/tmp/files_manager'
     // or (on Windows) '%USERPROFILE%/AppData/Local/Temp/files_manager';
+    console.log(isPublic);
     const newFile = {
       userId: new ObjectId(user._id),
       name,
@@ -133,6 +133,103 @@ class FilesController {
         ? 0
         : parentId,
     });
+  }
+
+  static async getShow(request, response) {
+    const id = request.params ? request.params.id : NULL_ID;
+    console.log('getShow');
+    const token = request.headers['x-token'];
+
+    if (!token) {
+      response.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const userId = await redisClient.get(`auth_${token}`);
+    if (!userId) {
+      response.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const user = await (await dbClient.usersCollection())
+      .findOne({ _id: new ObjectId(userId) });
+    if (!user) {
+      response.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+    const file = await (await dbClient.filesCollection())
+      .findOne({ _id: new ObjectId(id), userId: new ObjectId(user._id) });
+    if (!file) {
+      response.status(400).json({ error: 'Not found' });
+      return;
+    }
+    response.status(200).json({
+      id,
+      userId,
+      name: file.name,
+      type: file.type,
+      isPublic: file.isPublic,
+      parentId: file.parentId === ROOT_FOLDER_ID.toString()
+        ? 0
+        : file.parentId.toString(),
+    });
+  }
+
+  static async getIndex(request, response) {
+    console.log('getIndex');
+    const parentId = request.query.parentId || ROOT_FOLDER_ID.toString();
+    const page = /\d+/.test((request.query.page || '').toString())
+      ? Number.parseInt(request.query.page, 10)
+      : 0;
+
+    const token = request.headers['x-token'];
+
+    if (!token) {
+      response.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const userId = await redisClient.get(`auth_${token}`);
+    if (!userId) {
+      response.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const user = await (await dbClient.usersCollection())
+      .findOne({ _id: new ObjectId(userId) });
+    if (!user) {
+      response.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+    console.log(parentId);
+    const filesFilter = {
+      userId: user._id,
+      parentId: parentId === ROOT_FOLDER_ID.toString()
+        ? parentId
+        : new ObjectId(isValidId(parentId) ? parentId : NULL_ID),
+    };
+    // let files = [];
+    const files = await (await dbClient.filesCollection())
+      .aggregate([
+        { $match: filesFilter },
+        { $skip: page * 20 },
+        { $limit: 20 },
+        {
+          $project: {
+            _id: 0,
+            id: '$_id',
+            userId: '$userId',
+            name: '$name',
+            type: '$type',
+            isPublic: '$isPublic',
+            parentId: {
+              $cond: { if: { $eq: ['$parentId', '0'] }, then: 0, else: '$parentId' },
+            },
+          },
+        },
+      ]).toArray();
+
+    response.status(200).json(files);
   }
 }
 export default FilesController;
