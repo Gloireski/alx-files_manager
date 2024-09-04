@@ -212,26 +212,33 @@ class FilesController {
         : new ObjectId(isValidId(parentId) ? parentId : NULL_ID),
     };
     // let files = [];
-    const files = await (await (await dbClient.filesCollection())
+    const fileList = [];
+    const files = await (await dbClient.filesCollection())
       .aggregate([
         { $match: filesFilter },
         { $sort: { _id: -1 } },
         { $skip: page * 20 },
         { $limit: 20 },
-        {
-          $project: {
-            _id: 0,
-            id: '$_id',
-            userId: '$userId',
-            name: '$name',
-            type: '$type',
-            isPublic: '$isPublic',
-            parentId: '$parentId',
-          },
-        },
-      ])).toArray();
+        // {
+        //   $project: {
+        //     _id: 0,
+        //     id: '$_id',
+        //     userId: '$userId',
+        //     name: '$name',
+        //     type: '$type',
+        //     isPublic: '$isPublic',
+        //     parentId: '$parentId',
+        //   },
+        // },
+      ]);
+    await files.forEach((doc) => {
+      const document = { id: doc._id, ...doc };
+      delete document.localPath;
+      delete document._id;
+      fileList.push(document);
+    });
 
-    response.status(200).json(files);
+    response.status(200).json(fileList);
   }
 }
 export default FilesController;
