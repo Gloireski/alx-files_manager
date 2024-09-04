@@ -220,6 +220,7 @@ class FilesController {
         { $limit: 20 },
         {
           $project: {
+            _id: 0,
             id: '$_id',
             userId: '$userId',
             name: '$name',
