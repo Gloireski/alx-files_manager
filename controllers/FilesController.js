@@ -3,6 +3,7 @@ import {
   writeFile, mkdir, stat, realpath, existsSync,
 } from 'fs';
 import { contentType } from 'mime-types';
+import Queue from 'bull/lib/queue';
 import { tmpdir } from 'os';
 import { join as joinPath } from 'path';
 import { promisify } from 'util';
@@ -20,6 +21,7 @@ const DEFAULT_ROOT_FOLDER = 'files_manager';
 const mkDirAsync = promisify(mkdir);
 const writeFileAsync = promisify(writeFile);
 const statAsync = promisify(stat);
+const fileQueue = new Queue('thumbnail generation');
 const realpathAsync = promisify(realpath);
 const NULL_ID = Buffer.alloc(24, '0').toString('utf-8');
 const isValidId = (id) => {
@@ -126,6 +128,11 @@ class FilesController {
     const insertionInfo = await (await dbClient.filesCollection())
       .insertOne(newFile);
     const fileId = insertionInfo.insertedId.toString();
+    // start thumbnail generation worker
+    if (type === VALID_FILE_TYPES.image) {
+      const jobName = `Image thumbnail [${userId}-${fileId}]`;
+      fileQueue.add({ userId, fileId, name: jobName });
+    }
     response.status(201).json({
       id: fileId,
       userId,
@@ -356,6 +363,7 @@ class FilesController {
     }
 
     const userId = await redisClient.get(`auth_${token}`);
+    console.log(userId);
     if (!userId) {
       response.status(404).json({ error: 'Not found' });
       return;
